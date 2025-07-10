@@ -1,6 +1,10 @@
 -- =============================================================================
--- Script DML (INSERTs) para a Base de Dados SIGEPOLI
--- Projeto: Base de Dados II
+-- Script DML (INSERTs) para o Banco de Dados SIGEPOLI
+-- Projecto: SIGEPOLI
+-- Disciplina / Cadeira: Base de Dados II
+-- Autor: Willfredy Vieira Dias
+-- Número de Estudante: 20200204
+-- Docente: Judson Paiva
 -- Versão: 1.0
 --
 -- Descrição: Este script popula as tabelas com dados de teste realistas.
