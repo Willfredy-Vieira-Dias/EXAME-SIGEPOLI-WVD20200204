@@ -1,0 +1,21 @@
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A PROCEDURE [sp_matricular_aluno] (depois de a ter criado)
+-- =============================================================================
+
+-- Cenário 1: Sucesso
+-- O Aluno 2 (Sofia Costa) tem a propina 'Paga'. A Turma 2 (POO) tem 35 vagas e 1 matriculado.
+-- Esta chamada deverá funcionar.
+-- CALL sp_matricular_aluno(2, 2);
+
+-- Cenário 2: Erro - Propina Pendente
+-- O Aluno 3 (Rui Almeida) tem a propina 'Pendente'.
+-- Esta chamada deverá falhar e retornar a mensagem de erro da propina.
+-- CALL sp_matricular_aluno(3, 1);
+
+-- Cenário 3: Erro - Sem Vagas
+-- Vamos simular uma turma cheia. Primeiro, atualizamos a Turma 3 para ter apenas 1 vaga.
+-- UPDATE Turma SET vagas = 1 WHERE id_turma = 3;
+-- A aluna 4 (Catarina Martins) já está matriculada na Turma 3.
+-- Agora, tentamos matricular o Aluno 5 (André Rodrigues), que tem a propina paga, na mesma turma.
+-- Esta chamada deverá falhar e retornar a mensagem de erro de vagas.
+-- CALL sp_matricular_aluno(5, 3);
