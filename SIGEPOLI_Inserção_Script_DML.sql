@@ -11,7 +11,7 @@
 
 -- Usar a base de dados correta
 USE `SIGEPOLI`;
-
+ 
 -- Desativar temporariamente as verificações de chaves estrangeiras para facilitar a inserção em massa
 SET FOREIGN_KEY_CHECKS=0;
 
