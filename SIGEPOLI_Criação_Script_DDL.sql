@@ -12,7 +12,7 @@
 -- =============================================================================
 
 -- Criação do Schema (Base de Dados) e Definição para Uso
-CREATE SCHEMA IF NOT EXISTS `SIGEPOLI` DEFAULT CHARACTER SET utf8mb4 ; 
+CREATE SCHEMA IF NOT EXISTS `SIGEPOLI` DEFAULT CHARACTER SET utf8mb4 ;
 USE `SIGEPOLI` ;
 
 -- -----------------------------------------------------
