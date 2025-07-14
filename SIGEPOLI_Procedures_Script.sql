@@ -22,6 +22,10 @@ USE `SIGEPOLI`;
 
 -- O DELIMITER é usado para mudar o finalizador de comando padrão (;)
 -- para que possamos usar ; dentro da nossa procedure sem que o script termine prematuramente.
+
+-- =============================================================================
+-- # PROCEDURE PARA MATRICULAR UM ALUNO #
+-- =============================================================================
 DELIMITER $$
 
 CREATE PROCEDURE `sp_matricular_aluno`(
@@ -74,4 +78,90 @@ BEGIN
 END$$
 
 -- Voltamos a definir o delimitador padrão como ;
+DELIMITER ;
+
+-- =============================================================================
+-- # PROCEDURE PARA ALOCAR PROFESSOR #
+-- =============================================================================
+
+DELIMITER $$
+
+CREATE PROCEDURE `sp_alocar_professor`(
+    IN p_id_professor INT,
+    IN p_id_turma_nova INT
+)
+BEGIN
+    -- Variável para detetar se existe conflito. 0 = Não, 1 = Sim.
+    DECLARE v_conflito_horario INT DEFAULT 0;
+
+    -- O CURSOR vai iterar sobre cada bloco de horário da NOVA turma à qual queremos alocar o professor.
+    -- Para cada horário, vamos verificar se ele entra em conflito com algum horário que o professor JÁ TEM.
+    DECLARE v_dia_semana_nova ENUM('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado');
+    DECLARE v_hora_inicio_nova TIME;
+    DECLARE v_hora_fim_nova TIME;
+
+    -- Variável de controlo para o loop do cursor
+    DECLARE done INT DEFAULT FALSE;
+
+    -- Declaração do Cursor
+    DECLARE cur_horarios_nova_turma CURSOR FOR
+        SELECT dia_semana, hora_inicio, hora_fim
+        FROM Horario
+        WHERE id_turma = p_id_turma_nova;
+
+    -- Handler para o fim do cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- Abrimos o cursor para começar a iterar
+    OPEN cur_horarios_nova_turma;
+
+    -- Loop para percorrer cada horário da nova turma
+    read_loop: LOOP
+        FETCH cur_horarios_nova_turma INTO v_dia_semana_nova, v_hora_inicio_nova, v_hora_fim_nova;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- Para cada horário da nova turma, verificamos se existe um conflito
+        -- com os horários que o professor já tem.
+        SELECT COUNT(*)
+        INTO v_conflito_horario
+        FROM Professor_Turma pt
+        JOIN Horario h ON pt.id_turma = h.id_turma
+        WHERE
+            pt.id_professor = p_id_professor
+            AND h.dia_semana = v_dia_semana_nova
+            -- A lógica de sobreposição de tempo:
+            -- O novo horário começa durante um horário existente OU
+            -- O novo horário termina durante um horário existente OU
+            -- O novo horário "engole" completamente um horário existente.
+            AND (
+                (v_hora_inicio_nova >= h.hora_inicio AND v_hora_inicio_nova < h.hora_fim) OR
+                (v_hora_fim_nova > h.hora_inicio AND v_hora_fim_nova <= h.hora_fim) OR
+                (v_hora_inicio_nova <= h.hora_inicio AND v_hora_fim_nova >= h.hora_fim)
+            );
+
+        -- Se encontrámos um conflito (COUNT > 0), podemos parar de verificar.
+        IF v_conflito_horario > 0 THEN
+            LEAVE read_loop;
+        END IF;
+
+    END LOOP;
+
+    -- Fechamos o cursor pois já não precisamos mais dele
+    CLOSE cur_horarios_nova_turma;
+
+    -- Verificação final
+    IF v_conflito_horario > 0 THEN
+        -- Se a variável de conflito for maior que 0, significa que encontrámos uma sobreposição.
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'ERRO: Alocação falhou. O professor já tem um horário sobreposto.';
+    ELSE
+        -- Se não houve conflitos, podemos inserir com segurança.
+        INSERT INTO Professor_Turma (id_professor, id_turma) VALUES (p_id_professor, p_id_turma_nova);
+        SELECT 'SUCESSO: Professor alocado à turma com sucesso.' AS resultado;
+    END IF;
+
+END$$
+
 DELIMITER ;
