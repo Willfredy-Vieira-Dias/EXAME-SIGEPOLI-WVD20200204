@@ -1,0 +1,16 @@
+-- =============================================================================
+-- EXEMPLOS DE COMO TESTAR O TRIGGER [trg_auditoria_matriculas]
+-- =============================================================================
+-- Os triggers não são chamados com CALL. Eles disparam sozinhos.
+-- Para testar, basta realizar a ação que o trigger "escuta".
+
+-- Passo 1: Verifique o estado atual da tabela Auditoria (deve estar vazia ou com poucos registos)
+-- SELECT * FROM Auditoria;
+
+-- Passo 2: Execute uma matrícula válida usando a nossa procedure.
+-- O Aluno 5 (André) tem a propina paga. A Turma 2 (POO) tem vagas.
+-- CALL sp_matricular_aluno(5, 2);
+
+-- Passo 3: Verifique novamente a tabela Auditoria.
+-- Um novo registo de log deverá ter aparecido automaticamente, descrevendo a matrícula do André em POO.
+-- SELECT * FROM Auditoria ORDER BY id_log DESC LIMIT 1;
