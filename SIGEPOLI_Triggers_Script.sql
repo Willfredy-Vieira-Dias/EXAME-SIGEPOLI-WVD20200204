@@ -1,5 +1,5 @@
 -- =============================================================================
--- Script DML (INSERTs) para o Banco de Dados SIGEPOLI
+-- Script que contém os TRIGGERS para o Banco de Dados SIGEPOLI
 -- Projecto: SIGEPOLI
 -- Disciplina / Cadeira: Base de Dados II
 -- Autor: Willfredy Vieira Dias

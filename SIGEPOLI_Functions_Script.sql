@@ -1,5 +1,5 @@
 -- =============================================================================
--- Script que contém os PROCEDURES do Banco de Dados SIGEPOLI
+-- Script que contém as FUNCTIONS do Banco de Dados SIGEPOLI
 -- Projecto: SIGEPOLI
 -- Disciplina / Cadeira: Base de Dados II
 -- Autor: Willfredy Vieira Dias
