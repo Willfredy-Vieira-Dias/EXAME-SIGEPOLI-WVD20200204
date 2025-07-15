@@ -19,3 +19,45 @@
 -- Agora, tentamos matricular o Aluno 5 (André Rodrigues), que tem a propina paga, na mesma turma.
 -- Esta chamada deverá falhar e retornar a mensagem de erro de vagas.
 -- CALL sp_matricular_aluno(5, 3);
+
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A PROCEDURE [sp_alocar_professor]
+-- =============================================================================
+
+-- Cenário 1: Sucesso
+-- O Professor 2 (Maria Santos) dá aulas de POO (Turma 2) às Terças (14h-17h).
+-- A Turma 1 (BD2) tem aulas às Segundas e Quartas. Não há conflito.
+-- Esta chamada deverá funcionar.
+-- CALL sp_alocar_professor(2, 1);
+
+-- Cenário 2: Erro - Conflito de Horário
+-- Vamos criar um novo horário para a Turma 2 (POO) que entre em conflito com a Turma 1 (BD2).
+-- A Turma 1 tem aulas à Quarta das 10h às 12h.
+-- INSERT INTO Horario (id_turma, dia_semana, hora_inicio, hora_fim) VALUES (2, 'Quarta', '11:00:00', '13:00:00');
+-- O Professor 1 (Judson Paiva) já dá aulas na Turma 1.
+-- Agora, tentamos alocar o Professor 1 à Turma 2.
+-- Esta chamada deverá falhar, pois o novo horário (Quarta 11h-13h) sobrepõe-se ao existente (Quarta 10h-12h).
+-- CALL sp_alocar_professor(1, 2);
+
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A PROCEDURE [sp_processar_pagamento]
+-- =============================================================================
+
+-- Cenário 1: Sucesso, sem multa
+-- Para o Contrato 1, o SLA acordado é 90.00.
+-- Vamos processar o pagamento de Março de 2025 com um SLA de 95%, que é superior.
+-- A multa deve ser 0.
+-- CALL sp_processar_pagamento(1, 3, 2025, 95.00);
+
+-- Cenário 2: Sucesso, com multa (RN05)
+-- Para o Contrato 2, o SLA acordado é 95.00.
+-- Vamos processar o pagamento de Março de 2025 com um SLA de 92%, que é inferior.
+-- O sistema deve calcular uma multa de 10% sobre 2.500.000,00 (ou seja, 250.000,00).
+-- CALL sp_processar_pagamento(2, 3, 2025, 92.00);
+
+-- Cenário 3: Erro - Garantia Expirada (RN04)
+-- Vamos simular uma garantia expirada para o Contrato 1.
+-- UPDATE Contrato SET data_validade_garantia = '2024-01-01' WHERE id_contrato = 1;
+-- Agora, tentamos processar um pagamento para este contrato.
+-- Esta chamada deverá falhar e retornar a mensagem de erro da garantia.
+-- CALL sp_processar_pagamento(1, 4, 2025, 98.00);
