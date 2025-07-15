@@ -6,15 +6,6 @@
 -- Número de Estudante: 20200204
 -- Docente: Judson Paiva
 -- Versão: 1.0
---
--- Descrição: Esta procedure realiza a matrícula de um aluno numa turma,
--- implementando a Regra de Negócio RN02.
---
--- Regra de Negócio (RN02):
--- 1. Verifica se a turma tem vagas disponíveis.
--- 2. Verifica se o aluno tem a propina paga.
--- 3. Se ambas as condições forem verdadeiras, insere o registo na tabela Matricula.
--- 4. Retorna uma mensagem de sucesso ou de erro.
 -- =============================================================================
 
 -- Usar a base de dados correta
@@ -25,6 +16,15 @@ USE `SIGEPOLI`;
 
 -- =============================================================================
 -- # PROCEDURE PARA MATRICULAR UM ALUNO #
+--
+-- Descrição: Esta procedure realiza a matrícula de um aluno numa turma,
+-- implementando a Regra de Negócio RN02.
+--
+-- Regra de Negócio (RN02):
+-- 1. Verifica se a turma tem vagas disponíveis.
+-- 2. Verifica se o aluno tem a propina paga.
+-- 3. Se ambas as condições forem verdadeiras, insere o registo na tabela Matricula.
+-- 4. Retorna uma mensagem de sucesso ou de erro.
 -- =============================================================================
 DELIMITER $$
 
@@ -82,6 +82,16 @@ DELIMITER ;
 
 -- =============================================================================
 -- # PROCEDURE PARA ALOCAR PROFESSOR #
+--
+-- Descrição: Esta procedure aloca um professor a uma turma, implementando
+-- a Regra de Negócio RN01 para evitar conflitos de horário.
+--
+-- Regra de Negócio (RN01):
+-- 1. Obtém todos os horários (dia, hora_inicio, hora_fim) da turma de destino.
+-- 2. Verifica se o professor já está alocado a outras turmas que tenham
+--    aulas no mesmo dia e com sobreposição de horários.
+-- 3. Se não houver conflito, insere o registo na tabela Professor_Turma.
+-- 4. Retorna uma mensagem de sucesso ou de erro.
 -- =============================================================================
 
 DELIMITER $$
@@ -165,3 +175,83 @@ BEGIN
 END$$
 
 DELIMITER ; 
+
+-- =============================================================================
+-- # PROCEDURE PARA PROCESSAR UM PAGAMENTO #
+--
+-- Descrição: Esta procedure processa o pagamento mensal a uma empresa
+-- terceirizada, calculando multas com base no SLA (RN05) e verificando
+-- a validade da garantia do contrato (relacionado com a RN04).
+--
+-- Regras de Negócio Implementadas:
+-- 1. Verifica se a garantia do contrato está válida na data do processamento.
+-- 2. Compara o SLA apurado com o SLA acordado no contrato.
+-- 3. Se o SLA for inferior, calcula uma multa (ex: 10% do valor mensal).
+-- 4. Insere o registo final na tabela Pagamento com todos os detalhes.
+-- =============================================================================
+
+DELIMITER $$
+
+CREATE PROCEDURE `sp_processar_pagamento`(
+    IN p_id_contrato INT,
+    IN p_mes_referencia INT,
+    IN p_ano_referencia INT,
+    IN p_percentual_sla_apurado DECIMAL(5,2)
+)
+BEGIN
+    -- Declaração de variáveis para guardar os dados do contrato e os valores calculados
+    DECLARE v_valor_mensal DECIMAL(15,2);
+    DECLARE v_sla_acordado DECIMAL(5,2);
+    DECLARE v_data_validade_garantia DATE;
+    DECLARE v_valor_multa DECIMAL(15,2) DEFAULT 0.00;
+    DECLARE v_valor_pago DECIMAL(15,2);
+
+    -- 1. Obter os dados relevantes do contrato
+    SELECT
+        valor_mensal, sla_acordado, data_validade_garantia
+    INTO
+        v_valor_mensal, v_sla_acordado, v_data_validade_garantia
+    FROM Contrato
+    WHERE id_contrato = p_id_contrato;
+
+    -- 2. Verificar se a garantia do contrato é válida (RN04)
+    -- Embora um trigger vá bloquear isto, é uma boa prática a procedure também validar.
+    IF v_data_validade_garantia < CURDATE() THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'ERRO: Pagamento bloqueado. A garantia do contrato expirou.';
+    ELSE
+        -- 3. Verificar se o SLA apurado é inferior ao acordado (RN05)
+        IF p_percentual_sla_apurado < v_sla_acordado THEN
+            -- Se for inferior, calcula uma multa.
+            -- A regra de negócio não especifica a fórmula, vamos assumir uma multa de 10%.
+            SET v_valor_multa = v_valor_mensal * 0.10;
+        END IF;
+
+        -- 4. Calcular o valor final a ser pago
+        SET v_valor_pago = v_valor_mensal - v_valor_multa;
+
+        -- 5. Inserir o registo na tabela de pagamentos
+        INSERT INTO Pagamento (
+            id_contrato,
+            data_pagamento,
+            mes_referencia,
+            ano_referencia,
+            percentual_sla_apurado,
+            valor_multa,
+            valor_pago
+        ) VALUES (
+            p_id_contrato,
+            CURDATE(), -- Usa a data atual como data de pagamento
+            p_mes_referencia,
+            p_ano_referencia,
+            p_percentual_sla_apurado,
+            v_valor_multa,
+            v_valor_pago
+        );
+
+        SELECT 'SUCESSO: Pagamento processado e registado com sucesso.' AS resultado;
+    END IF;
+
+END$$
+
+DELIMITER ;
