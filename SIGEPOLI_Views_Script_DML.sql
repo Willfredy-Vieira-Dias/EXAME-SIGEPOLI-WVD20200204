@@ -83,3 +83,37 @@ GROUP BY
     col.id_colaborador, nome_professor, nome_departamento
 ORDER BY
     carga_horaria_total_atribuida DESC;
+    
+-- =============================================================================
+-- # VIEW QUE APRESENTA O RESUMO DE CUSTOS DE SERVIÇOS POR MÊS #
+--
+-- Descrição: Esta view cria um relatório financeiro que resume os custos
+--            mensais com empresas terceirizadas, agrupados por tipo de
+--            serviço (Limpeza, Segurança, Cafetaria).
+-- =============================================================================
+
+CREATE OR REPLACE VIEW `vw_resumo_custos_servicos` AS
+SELECT
+    p.ano_referencia,
+    p.mes_referencia,
+    et.tipo_servico,
+    -- Soma o valor total pago para aquele tipo de serviço naquele mês
+    SUM(p.valor_pago) AS total_pago,
+    -- Soma o total de multas aplicadas para referência
+    SUM(p.valor_multa) AS total_multas,
+    -- Conta quantos pagamentos foram feitos para aquele serviço no mês
+    COUNT(p.id_pagamento) AS numero_de_pagamentos
+FROM
+    Pagamento p
+    -- Junta com Contrato para obter a referência da empresa
+    JOIN Contrato c ON p.id_contrato = c.id_contrato
+    -- Junta com Empresa_Terceirizada para obter o tipo de serviço
+    JOIN Empresa_Terceirizada et ON c.id_empresa = et.id_empresa
+GROUP BY
+    p.ano_referencia,
+    p.mes_referencia,
+    et.tipo_servico
+ORDER BY
+    p.ano_referencia DESC,
+    p.mes_referencia DESC,
+    et.tipo_servico;

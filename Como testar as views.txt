@@ -25,3 +25,16 @@
 -- Cenário 3: Ver a carga horária dos professores de um departamento específico
 -- SELECT * FROM vw_carga_horaria_professor WHERE nome_departamento = 'Departamento de Engenharia e Tecnologias';
 
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A VIEW [vw_resumo_custos_servicos] (depois de a ter criado)
+-- =============================================================================
+-- Com base nos nossos dados de teste, teremos pagamentos para os meses 1 e 2 de 2025.
+
+-- Cenário 1: Ver o resumo de custos completo
+-- SELECT * FROM vw_resumo_custos_servicos;
+
+-- Cenário 2: Ver apenas os custos do ano de 2025
+-- SELECT * FROM vw_resumo_custos_servicos WHERE ano_referencia = 2025;
+
+-- Cenário 3: Ver os custos detalhados apenas para o serviço de 'Limpeza'
+-- SELECT * FROM vw_resumo_custos_servicos WHERE tipo_servico = 'Limpeza';
