@@ -14,3 +14,20 @@
 -- Passo 3: Verifique novamente a tabela Auditoria.
 -- Um novo registo de log deverá ter aparecido automaticamente, descrevendo a matrícula do André em POO.
 -- SELECT * FROM Auditoria ORDER BY id_log DESC LIMIT 1;
+
+-- =============================================================================
+-- EXEMPLOS DE COMO TESTAR O TRIGGER [trg_auditoria_pagamentos]
+-- =============================================================================
+-- Para testar, basta realizar a ação que o trigger "escuta".
+
+-- Passo 1: Verifique o estado atual da tabela Auditoria
+-- SELECT * FROM Auditoria;
+
+-- Passo 2: Execute um pagamento válido usando a nossa procedure.
+-- Vamos processar o pagamento do Contrato 2 para o mês 4 de 2025, com um SLA bom.
+-- CALL sp_processar_pagamento(2, 4, 2025, 98.50);
+
+-- Passo 3: Verifique novamente a tabela Auditoria.
+-- Um novo registo de log deverá ter aparecido automaticamente, descrevendo o pagamento
+-- à empresa "Segurança Máxima 24/7, S.A.".
+-- SELECT * FROM Auditoria ORDER BY id_log DESC LIMIT 1;
