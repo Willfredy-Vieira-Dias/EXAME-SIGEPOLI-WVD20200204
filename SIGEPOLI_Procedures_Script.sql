@@ -11,9 +11,6 @@
 -- Usar a base de dados correta
 USE `SIGEPOLI`;
 
--- O DELIMITER é usado para mudar o finalizador de comando padrão (;)
--- para que possamos usar ; dentro da nossa procedure sem que o script termine prematuramente.
-
 -- =============================================================================
 -- # PROCEDURE PARA MATRICULAR UM ALUNO #
 --
