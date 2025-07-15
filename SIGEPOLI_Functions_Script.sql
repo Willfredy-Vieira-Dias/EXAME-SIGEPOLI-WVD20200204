@@ -1,0 +1,9 @@
+-- =============================================================================
+-- Script que contém os PROCEDURES do Banco de Dados SIGEPOLI
+-- Projecto: SIGEPOLI
+-- Disciplina / Cadeira: Base de Dados II
+-- Autor: Willfredy Vieira Dias
+-- Número de Estudante: 20200204
+-- Docente: Judson Paiva
+-- Versão: 1.0
+-- =============================================================================
