@@ -1,0 +1,26 @@
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A FUNCTION (depois de a ter criado)
+-- =============================================================================
+-- As funções são usadas dentro de outras consultas, como o SELECT.
+
+-- Cenário 1: Calcular a média do Aluno 1 (Miguel) na Disciplina 1 (Base de Dados II)
+-- As notas dele são: (15.5 * 0.4) + (18.0 * 0.6) = 6.2 + 10.8 = 17.00
+-- SELECT fn_calcular_media_ponderada(1, 1) AS media_miguel_bd2;
+
+-- Cenário 2: Calcular a média da Aluna 2 (Sofia) na Disciplina 1 (Base de Dados II)
+-- As notas dela estão nos nossos inserts, mas não inserimos para a Sofia, apenas para o Miguel.
+-- Vamos inserir notas para a matrícula da Sofia (ID 3) para testar.
+-- INSERT INTO `Avaliacao` (`id_matricula`, `descricao`, `nota`, `peso`) VALUES (3, 'Prova 1', 8.0, 0.4), (3, 'Trabalho Prático', 12.5, 0.6);
+-- O cálculo seria: (8.0 * 0.4) + (12.5 * 0.6) = 3.2 + 7.5 = 10.70
+-- SELECT fn_calcular_media_ponderada(2, 1) AS media_sofia_bd2;
+
+
+-- Cenário 3: Usar a função para criar uma mini-pauta de notas para a disciplina de BD2
+-- SELECT
+--     a.primeiro_nome,
+--     a.ultimo_nome,
+--     fn_calcular_media_ponderada(a.id_aluno, 1) AS media_final
+-- FROM Aluno a
+-- JOIN Matricula m ON a.id_aluno = m.id_aluno
+-- JOIN Turma t ON m.id_turma = t.id_turma
+-- WHERE t.id_disciplina = 1; -- Filtra apenas para a disciplina de Base de Dados II
