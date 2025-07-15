@@ -103,3 +103,41 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- =============================================================================
+-- # TRIGGER PARA BLOQUEIO AUTOMÁTICO DE PAGAMENTO SEM GARANTIA (RN04) #
+--
+-- Descrição: Este trigger é disparado automaticamente ANTES de cada nova
+--            inserção na tabela Pagamento. Ele implementa a RN04,
+--            verificando se a garantia do contrato associado ainda é válida.
+--            Se a garantia estiver expirada, a operação é cancelada.
+--
+-- Evento: BEFORE INSERT ON Pagamento
+-- =============================================================================
+
+DELIMITER $$
+
+CREATE TRIGGER `trg_bloquear_pagamento_sem_garantia`
+BEFORE INSERT ON `Pagamento`
+FOR EACH ROW
+BEGIN
+    -- Declaração de variável para guardar a data de validade da garantia
+    DECLARE v_data_validade_garantia DATE;
+
+    -- Obter a data de validade da garantia do contrato correspondente
+    SELECT data_validade_garantia INTO v_data_validade_garantia
+    FROM Contrato
+    WHERE id_contrato = NEW.id_contrato; -- NEW refere-se à linha que está a TENTAR ser inserida
+
+    -- Verificar se a data de validade da garantia é anterior à data atual
+    IF v_data_validade_garantia < CURDATE() THEN
+        -- Se a garantia expirou, cancela a operação de INSERT
+        -- e lança uma mensagem de erro personalizada.
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'ERRO (RN04): Pagamento bloqueado. A garantia do contrato associado expirou.';
+    END IF;
+    -- Se a condição do IF não for satisfeita, o trigger termina sem fazer nada,
+    -- e a operação de INSERT prossegue normalmente.
+END$$
+
+DELIMITER ;

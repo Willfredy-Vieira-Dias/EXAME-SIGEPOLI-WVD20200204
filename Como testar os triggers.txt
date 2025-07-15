@@ -31,3 +31,30 @@
 -- Um novo registo de log deverá ter aparecido automaticamente, descrevendo o pagamento
 -- à empresa "Segurança Máxima 24/7, S.A.".
 -- SELECT * FROM Auditoria ORDER BY id_log DESC LIMIT 1;
+
+-- =============================================================================
+-- EXEMPLOS DE COMO TESTAR O TRIGGER [trg_bloquear_pagamento_sem_garantia]
+-- =============================================================================
+
+-- Cenário 1: Tentativa de pagamento com garantia expirada (DEVE FALHAR)
+
+-- Passo 1: Vamos expirar a garantia do Contrato 2 de propósito para o teste.
+-- A data atual é 2025. Vamos definir a validade para 2024.
+-- UPDATE Contrato SET data_validade_garantia = '2024-12-31' WHERE id_contrato = 2;
+
+-- Passo 2: Agora, tentamos processar um pagamento para o Contrato 2 usando a nossa procedure.
+-- O trigger `trg_bloquear_pagamento_sem_garantia` deve disparar ANTES do pagamento ser inserido
+-- e cancelar toda a operação, retornando a nossa mensagem de erro.
+-- CALL sp_processar_pagamento(2, 5, 2025, 99.00);
+-- A execução do CALL deve falhar com a mensagem: "ERRO (RN04): Pagamento bloqueado..."
+
+
+-- Cenário 2: Tentativa de pagamento com garantia válida (DEVE FUNCIONAR)
+
+-- Passo 1: Vamos garantir que a garantia do Contrato 1 está válida.
+-- UPDATE Contrato SET data_validade_garantia = '2026-01-01' WHERE id_contrato = 1;
+
+-- Passo 2: Processamos um pagamento para o Contrato 1.
+-- O trigger vai disparar, verificar que a garantia está válida, e permitir que a inserção continue.
+-- CALL sp_processar_pagamento(1, 5, 2025, 95.00);
+-- Esta chamada deve ser executada com sucesso.
