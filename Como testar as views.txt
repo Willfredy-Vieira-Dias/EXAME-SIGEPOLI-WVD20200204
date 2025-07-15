@@ -11,3 +11,17 @@
 
 -- Cenário 3: Ver apenas os horários das segundas-feiras para todos os cursos
 -- SELECT * FROM vw_grade_horaria_curso WHERE dia_semana = 'Segunda';
+
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A VIEW [vw_carga_horaria_professor] (depois de a ter criado)
+-- =============================================================================
+
+-- Cenário 1: Ver a carga horária de todos os professores
+-- SELECT * FROM vw_carga_horaria_professor;
+
+-- Cenário 2: Encontrar os professores com mais de 100 horas de aulas atribuídas
+-- SELECT * FROM vw_carga_horaria_professor WHERE carga_horaria_total_atribuida > 100;
+
+-- Cenário 3: Ver a carga horária dos professores de um departamento específico
+-- SELECT * FROM vw_carga_horaria_professor WHERE nome_departamento = 'Departamento de Engenharia e Tecnologias';
+
