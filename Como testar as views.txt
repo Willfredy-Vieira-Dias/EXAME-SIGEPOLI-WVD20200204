@@ -1,0 +1,13 @@
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A VIEW [vw_grade_horaria_curso] (depois de a ter criado)
+-- =============================================================================
+-- Usar uma view é tão simples como consultar uma tabela normal.
+
+-- Cenário 1: Ver a grade horária completa de todos os cursos
+-- SELECT * FROM vw_grade_horaria_curso;
+
+-- Cenário 2: Ver a grade horária apenas para o curso de "Engenharia Informática"
+-- SELECT * FROM vw_grade_horaria_curso WHERE nome_curso = 'Engenharia Informática';
+
+-- Cenário 3: Ver apenas os horários das segundas-feiras para todos os cursos
+-- SELECT * FROM vw_grade_horaria_curso WHERE dia_semana = 'Segunda';
