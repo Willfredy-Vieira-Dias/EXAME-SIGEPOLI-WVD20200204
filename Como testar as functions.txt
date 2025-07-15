@@ -1,5 +1,5 @@
 -- =============================================================================
--- EXEMPLOS DE COMO USAR A FUNCTION (depois de a ter criado)
+-- EXEMPLOS DE COMO USAR A FUNCTION [fn_calcular_media_ponderada] (depois de a ter criado)
 -- =============================================================================
 -- As funções são usadas dentro de outras consultas, como o SELECT.
 
@@ -24,3 +24,22 @@
 -- JOIN Matricula m ON a.id_aluno = m.id_aluno
 -- JOIN Turma t ON m.id_turma = t.id_turma
 -- WHERE t.id_disciplina = 1; -- Filtra apenas para a disciplina de Base de Dados II
+
+-- =============================================================================
+-- EXEMPLOS DE COMO USAR A FUNCTION [fn_obter_sla_mensal] (depois de a ter criado)
+-- =============================================================================
+
+-- Cenário 1: Obter o SLA de um mês em que o pagamento foi registado
+-- No nosso script de inserts, registámos o pagamento do Contrato 1 para o mês 1 de 2025 com um SLA de 92.50.
+-- Esta consulta deve retornar 92.50.
+-- SELECT fn_obter_sla_mensal(1, 1, 2025) AS sla_janeiro_contrato1;
+
+-- Cenário 2: Obter o SLA de um mês em que o pagamento teve multa
+-- Registámos o pagamento do Contrato 1 para o mês 2 de 2025 com um SLA de 88.00.
+-- Esta consulta deve retornar 88.00.
+-- SELECT fn_obter_sla_mensal(1, 2, 2025) AS sla_fevereiro_contrato1;
+
+-- Cenário 3: Tentar obter o SLA de um mês ainda não registado
+-- Não registámos o pagamento do Contrato 2 para o mês 4 de 2025.
+-- Esta consulta deve retornar NULL.
+-- SELECT fn_obter_sla_mensal(2, 4, 2025) AS sla_abril_contrato2;

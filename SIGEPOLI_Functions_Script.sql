@@ -70,3 +70,47 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+-- =============================================================================
+-- # FUNÇÃO PARA CALCULAR O PERCENTUAL DE SLA MENSAL #
+--
+-- Descrição: Esta função obtém o percentual de SLA apurado para um
+--            determinado contrato num mês e ano específicos. Ela consulta
+--            os dados já registados na tabela Pagamento.
+--
+-- Lógica:
+-- 1. Recebe como parâmetros o ID do contrato, o mês e o ano.
+-- 2. Procura na tabela Pagamento pelo registo correspondente.
+-- 3. Retorna o valor do campo `percentual_sla_apurado` encontrado.
+-- 4. Se nenhum pagamento for encontrado para o período, retorna NULL.
+-- =============================================================================
+
+DELIMITER $$
+
+CREATE FUNCTION `fn_obter_sla_mensal`(
+    p_id_contrato INT,
+    p_mes_referencia INT,
+    p_ano_referencia INT
+)
+RETURNS DECIMAL(5,2) -- Retorna o percentual de SLA
+DETERMINISTIC
+BEGIN
+    -- Declaração da variável que vai guardar o resultado
+    DECLARE v_sla_apurado DECIMAL(5,2);
+
+    -- Procura na tabela Pagamento pelo registo que corresponde aos parâmetros
+    SELECT percentual_sla_apurado
+    INTO v_sla_apurado
+    FROM Pagamento
+    WHERE
+        id_contrato = p_id_contrato
+        AND mes_referencia = p_mes_referencia
+        AND ano_referencia = p_ano_referencia;
+
+    -- Retorna o valor encontrado. Se a consulta não encontrar nada,
+    -- v_sla_apurado permanecerá com o seu valor inicial (NULL), que será retornado.
+    RETURN v_sla_apurado;
+
+END$$
+
+DELIMITER ;
